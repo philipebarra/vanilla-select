@@ -9,16 +9,35 @@
 </head>
 <body>
     <style>
-        .___select_hidde {
+        .___select_hide {
             display: none;
         }
 
-        .__select_visible {
+        /* .__select_visible {
             display: visible;
+        } */
+
+        .___all_options {
+            border: 1px solid rgba(0,0,0,.125);
+            overflow-y: auto;
+            height: 10.25rem;
+
         }
 
         .___all_options option  {
-            font-kerning: auto;
+            padding: .55rem 1.25rem;
+        }
+
+        .___all_options option:hover {
+            background-color: aquamarine;
+        }
+
+        .___all_options_item {
+            
+        }
+
+        .__all_options_active {
+            background-color: #007bff;
         }
 
         /* .___select:after {
