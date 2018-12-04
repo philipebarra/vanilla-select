@@ -9,43 +9,61 @@
 </head>
 <body>
     <style>
-        .___select_hide {
+        img {
+            width: 1rem;
+        }
+
+
+        .___select-caret-down-icon {
+            right:1.75rem;
+            position:absolute;
+            top:.4rem;
+        }
+
+        .___select-icon-input {
+            padding-right:1.75rem;
+        }
+
+        .___select-hide {
             display: none;
         }
 
-        /* .__select_visible {
-            display: visible;
-        } */
-
-        .___all_options {
-            border: 1px solid rgba(0,0,0,.125);
+        .___select-all-options {
+            position: absolute;
+            width: 96%;
+            background-color: #fff;
             overflow-y: auto;
-            height: 10.25rem;
-
+            /*height: 20rem;*/
+            max-height: 30rem!important;
+            border: 1px solid rgba(0,0,0,.125);
+            z-index: 2;
         }
 
-        .___all_options option  {
-            padding: .55rem 1.25rem;
+        .___select-all-options option {
+            padding: .75rem 1.25rem;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+            margin-bottom: -1px;
         }
 
-        .___all_options option:hover {
-            background-color: aquamarine;
+        .___select-all-options option:hover {
+            /*border: 1px solid #004085;*/
+            background-color: #b8daff;
+            color: #004085;
         }
 
-        .___all_options_item {
-            
+        .___select-all-options {
+            border-bottom-left-radius: .25rem;
+            border-bottom-right-radius: .25rem;
         }
 
-        .__all_options_active {
-            background-color: #007bff;
+        .nopadding {
+            padding-left: 0 !important;
+            /*margin: 0 !important;*/
         }
-
-        /* .___select:after {
-            content:arrow icon image;
-        } */
     </style>
     <div class="container mt-5">
-        <select name="movies" id="movies" class="form-control col-6">
+        <label for="movies">Teste:</label>
+        <select name="movies" id="movies" class="form-control col-2">
             <option value="1">The Godfather</option>
             <option value="2">The Wizard of Oz</option>
             <option value="3">Citizen Kane</option>
@@ -63,6 +81,13 @@
             <option value="15">Gone With the Wind</option>
         </select>
     </div>
+
+    <div class="col-4">
+        <input id="p" class='form-control ___select-icon-input'>
+        <label for="p"><img src="caret-down-solid.svg" class='___select-caret-down-icon' aria-hidden='true'></label>
+    </div>
+    <br>
+
     <script src="VanillaSelect.js"></script>
     <script>
         new VanillaSelect('movies');
