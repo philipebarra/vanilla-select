@@ -32,24 +32,31 @@ class VanillaSelect {
 
         this._originalSelect.parentNode.insertBefore(this._divParent, this._originalSelect);
 
-        this._allOptions = document.createElement('div');
+        this._allOptions = document.createElement('ul');
         this._allOptions.classList = __tc.OPTIONS;
         this._divParent.appendChild(this._allOptions);
 
         let options = this._originalSelect.querySelectorAll('option');
         let total = options.length;
+        let htmlOptions = '';
+
         for (let i = 0; i < total; i++) {
-            // console.log(options[i].classList.add('list-group-item'));
-            // options[i].classList.add(tc_.OPTIONITEM);
-            this._allOptions.appendChild(options[i]);
+            htmlOptions += `<li data-value='${options[i].value}'>${options[i].textContent}</li>`;
         }
 
-        this._input.onkeydown = () => this._analiseEvent();
+        this._allOptions.innerHTML = htmlOptions;
+
+
+        this._selectedIndex = null;
+
+        this._input.onkeydown = (event) => this._analiseEvent(event);
         window.addEventListener('click', (e) => this._click(e));
+        this._allOptions.onmouseover = (event) => this._activate(event.target);
 
     }
 
     _click(e) {
+        if(e.button !== 0) return;
         if(this._input.contains(e.target)) {//input clicked
             if(this.isVisible()) {
                 this.hide();
@@ -64,17 +71,29 @@ class VanillaSelect {
         }
     }
 
-    _analiseEvent() {
-        let e = window.event;
+    _activate(e) {
+        //remove previous selected item
+        let active = this._allOptions.querySelector(`.${__tc.ACTIVE}`);
+        if(active) {
+            active.classList.remove(__tc.ACTIVE);
+        }
+
+        //select current item
+        e.classList.add(__tc.ACTIVE);
+    }
+
+    _analiseEvent(e) {
+        e = e || window.event;
+        console.log(e);
         let element = null;
 
-        if (e.key === 27) {//esc
+        if (e.key === 'Escape') {
             this.hide(this._allOptions);
             this._selectedIndex = null;
             return;
         }
 
-        if(e.key === 38) {//up
+        if(e.key === 'ArrowUp') {
             if (this._selectedIndex === null) {
                 this._selectedIndex = 0;
             } else {
@@ -83,7 +102,7 @@ class VanillaSelect {
             element = this._getElement(this._selectedIndex);
         }
 
-        if (e.key === 40) {//down
+        if (e.key === 'ArrowDown') {
             if (!this.isVisible()) {//show options
                 this.show(this._allOptions);
                 this._selectedIndex = null;
@@ -97,7 +116,7 @@ class VanillaSelect {
             }
         }
 
-        
+        this._activate(element);
         // if(e.key === 13 && this._selectedIndex) {//enter
         //     this._selectElement 
         // }
@@ -117,16 +136,16 @@ class VanillaSelect {
     }
 
     _getElement(index) {
-        let elements = this._allOptions.querySelectorAll('option');
-        
-        if(index >= elements.length) {
+        let elements = this._allOptions.querySelectorAll('ul li');
+
+        if(index >= elements.length) {//returns last element
             this._selectedIndex = elements.length -1; 
             return elements[this._selectedIndex];
         } 
-        else if(index < 0) {
+        else if(index < 0) {//returns first element
             this._selectedIndex = 0;
             return elements[this._selectedIndex];
-        } else {
+        } else {//returns index element
             return elements[index];
         }
     }
@@ -144,12 +163,12 @@ class VanillaSelect {
 
 //Table constants
 let __tc = {
+    ACTIVE: '___select-all-option-active',
     ROOT: '___select-root',
     OPTIONS: '___select-all-options ___select-hide',
     OPTIONITEM: '',
     ICON: '___select-caret-down-icon',
     INPUT: 'form-control ___select-icon-input',
-    HIDE: '___select-hide'
-    // WRAPPER_IMG: '___wrapper ___img'
+    HIDE: '___select-hide',
 };
 Object.freeze(__tc);

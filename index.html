@@ -34,18 +34,20 @@
             background-color: #fff;
             overflow-y: auto;
             /*height: 20rem;*/
-            max-height: 30rem!important;
+            max-height: 20rem!important;
             border: 1px solid rgba(0,0,0,.125);
+            list-style-type: none;
             z-index: 2;
+            padding-left: 0 !important;
         }
 
-        .___select-all-options option {
+        .___select-all-options li {
             padding: .75rem 1.25rem;
             border-bottom: 1px solid rgba(0,0,0,.125);
             margin-bottom: -1px;
         }
 
-        .___select-all-options option:hover {
+        .___select-all-option-active {
             /*border: 1px solid #004085;*/
             background-color: #b8daff;
             color: #004085;
@@ -60,6 +62,11 @@
             padding-left: 0 !important;
             /*margin: 0 !important;*/
         }
+
+        .nopadding label {
+            display: initial;
+        }
+
     </style>
     <div class="container mt-5">
         <label for="movies">Teste:</label>
@@ -83,8 +90,9 @@
     </div>
 
     <div class="col-4">
-        <input id="p" class='form-control ___select-icon-input'>
+        <input id="p" class='form-control ___select-icon-input' autocomplete="off">
         <label for="p"><img src="caret-down-solid.svg" class='___select-caret-down-icon' aria-hidden='true'></label>
+
     </div>
     <br>
 
