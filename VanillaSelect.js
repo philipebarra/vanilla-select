@@ -10,11 +10,11 @@ class VanillaSelect {
         this._originalSelect = document.getElementById(id);
         if (this._originalSelect === null) return;
 
-        this._originalSelect.style.display = 'visible';
+        this._originalSelect.classList.add(__tc.HIDE);
 
         this._divParent = document.createElement('div');
 
-        this._divParent.classList = 'col-sm-4 nopadding';
+        this._divParent.classList = 'col-6 nopadding';
 
         this._input = document.createElement('input');
         this._input.classList = __tc.INPUT;
@@ -49,10 +49,21 @@ class VanillaSelect {
 
         this._selectedIndex = null;
 
-        this._input.onkeydown = (event) => this._analiseEvent(event);
-        window.addEventListener('click', (e) => this._click(e));
-        this._allOptions.onmouseover = (event) => this._activate(event.target);
+        this._addEventListeners();
 
+
+    }
+
+    _addEventListeners() {
+
+        this._input.onkeydown = (event) => this._analiseEvent(event);
+        this._input.onkeyup = (event) => {
+            if(event.key === 'Control') {
+                this._controlDown = false;
+            }
+        };
+        window.addEventListener('click', (e) => this._click(e));
+        this._allOptions.onmouseover = (event) => this._styleActiveElement(event.target);
     }
 
     _click(e) {
@@ -64,14 +75,19 @@ class VanillaSelect {
                 this.show();
             }
         } else if(!this._allOptions.contains(e.target)) {//click outside options
-            this.hide(this._allOptions);
+            this.hide();
         } else if(this._allOptions.contains(e.target)) {
-            this.hide(this._allOptions);
+            this.hide();
             this._selectElement(e.target);
+            this._selectedIndex = this._getElementIndex(e.target);
         }
     }
 
-    _activate(e) {
+    _styleActiveElement(e) {
+        if(e.tagName.toLocaleLowerCase() !== 'li') {
+            return;
+        }
+
         //remove previous selected item
         let active = this._allOptions.querySelector(`.${__tc.ACTIVE}`);
         if(active) {
@@ -80,20 +96,22 @@ class VanillaSelect {
 
         //select current item
         e.classList.add(__tc.ACTIVE);
+        this.__scrollToIfIsNotVisible(this._allOptions, e);
     }
 
     _analiseEvent(e) {
         e = e || window.event;
-        console.log(e);
+        // let element = this._getElement(this._selectedIndex);
         let element = null;
 
+
         if (e.key === 'Escape') {
-            this.hide(this._allOptions);
-            this._selectedIndex = null;
+            this.hide();
+            // this._selectedIndex = null;
             return;
         }
 
-        if(e.key === 'ArrowUp') {
+       else if(e.key === 'ArrowUp') {
             if (this._selectedIndex === null) {
                 this._selectedIndex = 0;
             } else {
@@ -102,25 +120,48 @@ class VanillaSelect {
             element = this._getElement(this._selectedIndex);
         }
 
-        if (e.key === 'ArrowDown') {
+        else if (e.key === 'ArrowDown') {
             if (!this.isVisible()) {//show options
-                this.show(this._allOptions);
-                this._selectedIndex = null;
+                this.show();
+                // this._selectedIndex = 0;
+                return;
             } else {//next selection
                 if (this._selectedIndex === null) {
                     this._selectedIndex = 0;
                 } else {
                     ++this._selectedIndex;
                 }
-                element = this._getElement(this._selectedIndex);
             }
+            element = this._getElement(this._selectedIndex);
         }
 
-        this._activate(element);
-        // if(e.key === 13 && this._selectedIndex) {//enter
-        //     this._selectElement 
-        // }
-        console.log(element);
+        else if(e.key === 'Control') {
+            this._controlDown = true;
+            return;
+        }
+
+        else if(this._controlDown && e.key === 'Home') {
+            element = this._getElement(0);
+        }
+
+        else if(this._controlDown && e.key === 'End') {
+            element = this._getElement(this._allOptions.querySelectorAll('li').length -1);
+        }
+
+        else if(e.key === 'Enter' && this._selectedIndex) {//enter
+            element = this._getElement(this._selectedIndex);
+        }
+
+        else {
+            return;
+        }
+
+        this._styleActiveElement(element);
+
+        if(e.key === 'Enter') {
+            this._selectElement(element);
+            this.hide();
+        }
     }
 
     hide() {
@@ -136,7 +177,7 @@ class VanillaSelect {
     }
 
     _getElement(index) {
-        let elements = this._allOptions.querySelectorAll('ul li');
+        let elements = this._allOptions.querySelectorAll('li');
 
         if(index >= elements.length) {//returns last element
             this._selectedIndex = elements.length -1; 
@@ -146,22 +187,67 @@ class VanillaSelect {
             this._selectedIndex = 0;
             return elements[this._selectedIndex];
         } else {//returns index element
+            this._selectedIndex = index;
             return elements[index];
         }
     }
 
-    _selectElement(element) {
-        this._input.value = element.textContent;
+    _getElementIndex(e) {
+        let elements = this._allOptions.querySelectorAll('li');
+        let total = elements.length;
+        for(let i = 0; i < total; i++) {
+            if(e.dataset.value === elements[i].dataset.value) {
+                return i;
+            }
+        }
+    }
 
-        this._originalSelect.innerHTML = '';
+    _selectElement(e) {
+        this._input.value = e.textContent;
 
-        let clone = element.cloneNode(true);
-        clone.setAttribute('selected', true);
-        this._originalSelect.appendChild(clone);
+        this._originalSelect.value = e.dataset.value;
+
+        // let clone = element.cloneNode(true);
+        // clone.setAttribute('selected', true);
+        // this._originalSelect.appendChild(clone);
+    }
+
+    __scrollToIfIsNotVisible(parent, child) {
+        // Where is the parent on page
+        let parentRect = parent.getBoundingClientRect();
+
+        // What can you see?
+        let parentViewableArea = {
+            height: parent.clientHeight,
+            width: parent.clientWidth
+        };
+
+        // Where is the child
+        let childRect = child.getBoundingClientRect();
+            // console.log(childRect);
+        // Is the child viewable?
+        let isViewable = (childRect.top >= parentRect.top) && (childRect.top <= parentRect.top + parentViewableArea.height);
+
+        // if you can't see the child try to scroll parent
+        if (!isViewable) {
+
+
+            // scroll by offset relative to parent
+            //before scroll check if the bottom of child will be visible on next scroll
+            if(parentRect.bottom - childRect.top < childRect.height) {
+                parent.scrollTop = (childRect.bottom + parent.scrollTop) - parentRect.bottom
+                // child.scrollIntoView(false);
+            } else {
+
+                // parent.scrollTop = (childRect.top + parent.scrollTop) - parentRect.top
+                child.scrollIntoView();
+            }
+
+
+        }
     }
 }
 
-//Table constants
 let __tc = {
     ACTIVE: '___select-all-option-active',
     ROOT: '___select-root',
