@@ -1,32 +1,44 @@
 class VanillaSelect {
 
-    /*
-     * <div class="col-4">
-     *  <input id="p" class='form-control ___select-icon-input'>
-     *  <label for="p"><img src="caret-down-solid.svg" class='___select-caret-down-icon'></label>
-     * </div>
-     */
     constructor(id) {
         this._originalSelect = document.getElementById(id);
         if (this._originalSelect === null) return;
 
+        this._selectedIndex = null;
+
+        this._data = [];
+
+        this._createElements();
+        this._addEventListeners();
+
+
+    }
+
+    /*
+     * <div class="col-4">
+     *  <input id="p" class='form-control ___select-icon-input'>
+     *  <label for="p"><img src="caret-down-solid.svg" class='___select-caret-down-icon'></label>
+     *  <ul>
+     *      <li data-value=""></li>
+     *  </ul>
+     * </div>
+     */
+    _createElements() {
         this._originalSelect.classList.add(__tc.HIDE);
-
         this._divParent = document.createElement('div');
-
-        this._divParent.classList = 'col-6 nopadding';
+        this._divParent.classList = __tc.ALL_OPTIONS;
 
         this._input = document.createElement('input');
         this._input.classList = __tc.INPUT;
         this._input.id = '___select' + Math.random().toString(36).substring(7);
         this._divParent.appendChild(this._input);
 
-        this._label = document.createElement('label');
+        this._label = document.createElement('label')
         this._label.setAttribute('for', this._input.id);
         this._divParent.appendChild(this._label);
 
         this._img = document.createElement('img');
-        this._img.src = 'caret-down-solid.svg';
+        this._img.src = __tc.IMAGE;
         this._img.classList = __tc.ICON;
         this._label.appendChild(this._img);
 
@@ -41,15 +53,19 @@ class VanillaSelect {
         let htmlOptions = '';
 
         for (let i = 0; i < total; i++) {
+            this._data.push({
+                index: i,
+                value: options[i].value,
+                text: options[i].textContent,
+                match: true,
+                // aText: options[i].textContent.split(' ')
+            });
             htmlOptions += `<li data-value='${options[i].value}'>${options[i].textContent}</li>`;
         }
 
         this._allOptions.innerHTML = htmlOptions;
 
-
-        this._selectedIndex = null;
-
-        this._addEventListeners();
+        this._optionsLi = this._allOptions.querySelectorAll('li');
 
 
     }
@@ -60,15 +76,18 @@ class VanillaSelect {
         this._input.onkeyup = (event) => {
             if(event.key === 'Control') {
                 this._controlDown = false;
+            } else {
+                this._search();
             }
         };
-        window.addEventListener('click', (e) => this._click(e));
+        document.addEventListener('click', (e) => this._click(e));
         this._allOptions.onmouseover = (event) => this._styleActiveElement(event.target);
     }
 
     _click(e) {
         if(e.button !== 0) return;
         if(this._input.contains(e.target)) {//input clicked
+
             if(this.isVisible()) {
                 this.hide();
             } else {
@@ -77,8 +96,7 @@ class VanillaSelect {
         } else if(!this._allOptions.contains(e.target)) {//click outside options
             this.hide();
         } else if(this._allOptions.contains(e.target)) {
-            this.hide();
-            this._selectElement(e.target);
+            this._selectElement(e.target).hide();
             this._selectedIndex = this._getElementIndex(e.target);
         }
     }
@@ -129,7 +147,8 @@ class VanillaSelect {
                 if (this._selectedIndex === null) {
                     this._selectedIndex = 0;
                 } else {
-                    ++this._selectedIndex;
+                    // ++this._selectedIndex;
+                    this._nextActiveElement();
                 }
             }
             element = this._getElement(this._selectedIndex);
@@ -145,7 +164,7 @@ class VanillaSelect {
         }
 
         else if(this._controlDown && e.key === 'End') {
-            element = this._getElement(this._allOptions.querySelectorAll('li').length -1);
+            element = this._getElement(this._optionsLi.length -1);
         }
 
         else if(e.key === 'Enter' && this._selectedIndex) {//enter
@@ -159,8 +178,21 @@ class VanillaSelect {
         this._styleActiveElement(element);
 
         if(e.key === 'Enter') {
-            this._selectElement(element);
-            this.hide();
+            this._selectElement(element)
+                .hide();
+        }
+    }
+
+    _nextActiveElement() {
+        let total = this._optionsLi.length;
+
+        console.log(this._selectedIndex);
+
+        for(this._selectedIndex; this._selectedIndex < total; this._selectedIndex++) {
+
+            if(this._data[this._selectedIndex].match) {
+                break;
+            }
         }
     }
 
@@ -176,27 +208,35 @@ class VanillaSelect {
         return !this._allOptions.classList.contains(__tc.HIDE);
     }
 
-    _getElement(index) {
-        let elements = this._allOptions.querySelectorAll('li');
+    _hideItem(index) {
+        this._optionsLi[index].classList.add(__tc.HIDE);
 
-        if(index >= elements.length) {//returns last element
-            this._selectedIndex = elements.length -1; 
-            return elements[this._selectedIndex];
+    }
+
+    _showItem(index) {
+        this._optionsLi[index].classList.remove(__tc.HIDE);
+
+    }
+
+    _getElement(index) {
+
+        if(index >= this._optionsLi.length) {//returns last element
+            this._selectedIndex = this._optionsLi.length -1;
+            return this._optionsLi[this._selectedIndex];
         } 
         else if(index < 0) {//returns first element
             this._selectedIndex = 0;
-            return elements[this._selectedIndex];
+            return this._optionsLi[this._selectedIndex];
         } else {//returns index element
             this._selectedIndex = index;
-            return elements[index];
+            return this._optionsLi[index];
         }
     }
 
     _getElementIndex(e) {
-        let elements = this._allOptions.querySelectorAll('li');
-        let total = elements.length;
+        let total = this._optionsLi.length;
         for(let i = 0; i < total; i++) {
-            if(e.dataset.value === elements[i].dataset.value) {
+            if(e.dataset.value === this._optionsLi[i].dataset.value) {
                 return i;
             }
         }
@@ -204,12 +244,26 @@ class VanillaSelect {
 
     _selectElement(e) {
         this._input.value = e.textContent;
-
         this._originalSelect.value = e.dataset.value;
+        return this;
+    }
 
-        // let clone = element.cloneNode(true);
-        // clone.setAttribute('selected', true);
-        // this._originalSelect.appendChild(clone);
+    _search() {
+        let q = this._input.value;
+        let reg = new RegExp(q, 'i');
+
+        this._data.forEach( (x) => {
+
+            x.match = reg.test(x.text);
+
+            if(!x.match) {
+                this._hideItem(x.index)
+            } else {
+                this._showItem(x.index);
+            }
+
+            return x;
+        });
     }
 
     __scrollToIfIsNotVisible(parent, child) {
@@ -250,11 +304,13 @@ class VanillaSelect {
 
 let __tc = {
     ACTIVE: '___select-all-option-active',
+    ALL_OPTIONS: 'col-6 nopadding',
+    HIDE: '___select-hide',
+    ICON: '___select-caret-down-icon',
+    INPUT: 'form-control ___select-icon-input',
     ROOT: '___select-root',
     OPTIONS: '___select-all-options ___select-hide',
     OPTIONITEM: '',
-    ICON: '___select-caret-down-icon',
-    INPUT: 'form-control ___select-icon-input',
-    HIDE: '___select-hide',
+    IMAGE: 'caret-down-solid.svg'
 };
 Object.freeze(__tc);
