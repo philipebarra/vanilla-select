@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,21 +8,18 @@
     <title>Document</title>
     <link rel="stylesheet" href="bootstrap.min.css">
 </head>
+
 <body>
     <style>
-        img {
-            width: 1rem;
-        }
-
 
         .___select-caret-down-icon {
-            right:1.75rem;
-            position:absolute;
-            top:.4rem;
+            right: 1.75rem;
+            position: absolute;
+            top: .5rem;
         }
 
         .___select-icon-input {
-            padding-right:1.75rem;
+            padding-right: 1.75rem;
         }
 
         .___select-hide {
@@ -34,8 +32,8 @@
             background-color: #fff;
             overflow-y: auto;
             /*height: 20rem;*/
-            max-height: 20.40rem!important;
-            border: 1px solid rgba(0,0,0,.125);
+            max-height: 20.40rem !important;
+            border: 1px solid rgba(0, 0, 0, .125);
             list-style-type: none;
             z-index: 2;
             padding-left: 0 !important;
@@ -43,7 +41,7 @@
 
         .___select-all-options li {
             padding: .375rem 1.25rem;
-            border-bottom: 1px solid rgba(0,0,0,.125);
+            border-bottom: 1px solid rgba(0, 0, 0, .125);
             margin-bottom: -1px;
         }
 
@@ -66,7 +64,6 @@
         .nopadding label {
             display: initial;
         }
-
     </style>
     <div class="container mt-5">
         <label for="movies">Teste:</label>
@@ -85,7 +82,7 @@
             <option value="12">Back to the Future</option>
             <option value="13">Raiders of the Lost Ark</option>
             <option value="14">Forrest Gump</option>
-            <option value="15">Gone With the Wind</option>
+            <option value="15">Gone With the Wind</option>            
         </select>
     </div>
     <br>
@@ -95,4 +92,5 @@
         new VanillaSelect('movies');
     </script>
 </body>
+
 </html>
